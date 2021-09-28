@@ -16,5 +16,7 @@ public class Main {
         System.out.println("");
         System.out.println("hotfix");
         System.out.println("master");
+        System.out.println("pushTest");
+
     }
 }
