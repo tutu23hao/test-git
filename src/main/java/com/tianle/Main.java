@@ -17,7 +17,7 @@ public class Main {
         System.out.println("hotfix");
         System.out.println("master");
         System.out.println("pushTest");
-             System.out.println("pullTest");
+        System.out.println("pullTest");
         System.out.println("tianle");
 
     }
