@@ -15,6 +15,6 @@ public class FirstController {
 
     @GetMapping("/hello")
     public String hello(){
-        return "helloWorld!!!!!";
+        return "helloWorld!!!!!"+"very good";
     }
 }
