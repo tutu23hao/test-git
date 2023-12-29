@@ -8,4 +8,6 @@ import lombok.Data;
 @Data
 public class AFeature {
     private String name;
+
+    private String age;
 }
