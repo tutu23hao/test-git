@@ -12,4 +12,6 @@ public class AFeature {
     private String age;
 
     private String acc;
+
+    private String level;
 }
