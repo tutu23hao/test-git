@@ -16,4 +16,8 @@ public class AFeature {
     private String level;
 
     private String date;
+
+    private String time;
+
+    private String year;
 }
