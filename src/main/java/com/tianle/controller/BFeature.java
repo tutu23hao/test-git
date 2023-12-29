@@ -10,4 +10,6 @@ public class BFeature {
 
 
     private String userName;
+
+    private String mail;
 }
