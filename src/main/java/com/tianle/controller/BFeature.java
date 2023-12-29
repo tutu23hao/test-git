@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class BFeature {
 
+    private String age;
 
     private String userName;
 
