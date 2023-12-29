@@ -14,4 +14,6 @@ public class AFeature {
     private String acc;
 
     private String level;
+
+    private String date;
 }
