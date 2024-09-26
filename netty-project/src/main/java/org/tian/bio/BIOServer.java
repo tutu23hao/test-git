@@ -1,4 +1,4 @@
-package org.tian;
+package org.tian.bio;
 
 import java.io.IOException;
 import java.io.InputStream;
