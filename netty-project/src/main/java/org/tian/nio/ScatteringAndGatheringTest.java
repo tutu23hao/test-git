@@ -17,7 +17,7 @@ public class ScatteringAndGatheringTest {
 
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(7000);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(7001);
         serverSocketChannel.socket().bind(inetSocketAddress);
 
         ByteBuffer[] byteBuffers = new ByteBuffer[2];
@@ -27,12 +27,29 @@ public class ScatteringAndGatheringTest {
 
         int messageLength = 8;
         while (true) {
-            long read = socketChannel.read(byteBuffers);
 
-            if (read <= messageLength) {
-                Arrays.asList(byteBuffers).stream().map(byteBuffer -> {
-                });
+            int byteRead = 0;
+            while (byteRead < messageLength) {
+                long read = socketChannel.read(byteBuffers);
+                byteRead += read;
             }
+            Arrays.stream(byteBuffers).map(byteBuffer -> "position=" + byteBuffer.position() + ", limit= " + byteBuffer.limit())
+                    .forEach(System.out::println);
+
+            Arrays.stream(byteBuffers).forEach(ByteBuffer::flip);
+
+            int byteWrite = 0;
+            while (byteWrite < messageLength) {
+                long write = socketChannel.write(byteBuffers);
+                byteWrite += write;
+            }
+//            Arrays.stream(byteBuffers).map(byteBuffer -> "position=" + byteBuffer.position() + ", limit= " + byteBuffer.limit())
+//                    .forEach(System.out::println);
+            
+
+            Arrays.asList(byteBuffers).forEach(ByteBuffer::clear);
+
+
         }
 
 
