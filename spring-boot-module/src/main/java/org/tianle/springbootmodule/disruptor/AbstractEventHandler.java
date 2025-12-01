@@ -26,7 +26,7 @@ public abstract class AbstractEventHandler<T extends PooledPayload> implements E
         if (payloadType.isInstance(payload)) {
             @SuppressWarnings("unchecked")
             T typedPayload = (T) payload;
-//            LOGGER.info("Consumed {} event: {}", payloadType().getSimpleName(), typedPayload.describe());
+            LOGGER.info("Consumed {} event: {}", payloadType().getSimpleName(), typedPayload.describe());
             handleEvent(typedPayload);
             pool.returnObject(typedPayload);
             event.clear();

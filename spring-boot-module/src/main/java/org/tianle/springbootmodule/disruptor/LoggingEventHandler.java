@@ -10,11 +10,11 @@ public class LoggingEventHandler<T extends PooledPayload> extends AbstractEventH
 
     @Override
     protected void handleEvent(T payload) {
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+////            Thread.sleep(1);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
         // No additional processing; logging happens in the abstract base class.
     }
 }
