@@ -1,4 +1,4 @@
-package org.tianle.springbootmodule.disruptor;
+package org.tianle.springbootmodule.disruptor.core;
 
 import com.lmax.disruptor.EventFactory;
 

@@ -1,8 +1,8 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Mon Dec 01 22:53:18 CST 2025
+#Mon Dec 01 23:48:37 CST 2025
 https\://maven.aliyun.com/repository/apache-snapshots/.error=Could not transfer artifact org.springframework.boot\:spring-boot-starter-parent\:pom\:2.7.18 from/to aliyunmavenApache (https\://maven.aliyun.com/repository/apache-snapshots)\: transfer failed for https\://maven.aliyun.com/repository/apache-snapshots/org/springframework/boot/spring-boot-starter-parent/2.7.18/spring-boot-starter-parent-2.7.18.pom
-@default-aliyunmavenApache-https\://maven.aliyun.com/repository/apache-snapshots/.lastUpdated=1764600798615
+@default-aliyunmavenApache-https\://maven.aliyun.com/repository/apache-snapshots/.lastUpdated=1764604117720
 https\://repo1.maven.org/maven2/.error=Could not transfer artifact org.springframework.boot\:spring-boot-starter-parent\:pom\:2.7.18 from/to MavenCentral (https\://repo1.maven.org/maven2/)\: transfer failed for https\://repo1.maven.org/maven2/org/springframework/boot/spring-boot-starter-parent/2.7.18/spring-boot-starter-parent-2.7.18.pom
-@default-MavenCentral-https\://repo1.maven.org/maven2/.lastUpdated=1764600798614
-@default-aliyunmaven-https\://maven.aliyun.com/repository/public/.lastUpdated=1764600798606
+@default-MavenCentral-https\://repo1.maven.org/maven2/.lastUpdated=1764604117719
+@default-aliyunmaven-https\://maven.aliyun.com/repository/public/.lastUpdated=1764604117712
 https\://maven.aliyun.com/repository/public/.error=Could not transfer artifact org.springframework.boot\:spring-boot-starter-parent\:pom\:2.7.18 from/to aliyunmaven (https\://maven.aliyun.com/repository/public)\: transfer failed for https\://maven.aliyun.com/repository/public/org/springframework/boot/spring-boot-starter-parent/2.7.18/spring-boot-starter-parent-2.7.18.pom

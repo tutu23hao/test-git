@@ -1,20 +1,22 @@
-package org.tianle.springbootmodule.disruptor;
+package org.tianle.springbootmodule.disruptor.producer;
 
 import com.lmax.disruptor.RingBuffer;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+import org.tianle.springbootmodule.disruptor.core.AbstractEventProducer;
+import org.tianle.springbootmodule.disruptor.core.PooledEvent;
+import org.tianle.springbootmodule.disruptor.model.Balance;
 
 import java.math.BigDecimal;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Component
 public class BalanceEventProducer extends AbstractEventProducer<Balance> {
 
-    public BalanceEventProducer(RingBuffer<PooledEvent> ringBuffer, GenericObjectPool<Balance> pool) {
+    public BalanceEventProducer(RingBuffer<PooledEvent> ringBuffer,
+                                @Qualifier("balancePool") GenericObjectPool<Balance> pool) {
         super(ringBuffer, pool);
-    }
-
-    @Override
-    public void publishEvent() {
-        super.publishEvent();
     }
 
     @Override

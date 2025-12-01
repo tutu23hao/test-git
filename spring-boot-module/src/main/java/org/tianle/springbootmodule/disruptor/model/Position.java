@@ -1,4 +1,6 @@
-package org.tianle.springbootmodule.disruptor;
+package org.tianle.springbootmodule.disruptor.model;
+
+import org.tianle.springbootmodule.disruptor.core.PooledPayload;
 
 public class Position implements PooledPayload {
 

@@ -1,8 +1,9 @@
-package org.tianle.springbootmodule.disruptor;
+package org.tianle.springbootmodule.disruptor.pool;
 
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.tianle.springbootmodule.disruptor.model.Balance;
 
 public class BalancePooledObjectFactory extends BasePooledObjectFactory<Balance> {
     @Override
