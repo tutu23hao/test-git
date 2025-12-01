@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +27,6 @@ public class DisruptorDemoService {
     private final UserEventProducer userEventProducer;
     private final BalanceEventProducer balanceEventProducer;
     private final PositionEventProducer positionEventProducer;
-    private final ExecutorService publisherExecutor;
 
     public DisruptorDemoService() {
         GenericObjectPoolConfig<User> config = new GenericObjectPoolConfig<>();
@@ -67,11 +64,6 @@ public class DisruptorDemoService {
         this.userEventProducer = new UserEventProducer(this.disruptor.getRingBuffer(), this.userPool);
         this.balanceEventProducer = new BalanceEventProducer(this.disruptor.getRingBuffer(), this.balancePool);
         this.positionEventProducer = new PositionEventProducer(this.disruptor.getRingBuffer(), this.positionPool);
-        this.publisherExecutor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "disruptor-publisher");
-            t.setDaemon(true);
-            return t;
-        });
     }
 
     @PreDestroy
@@ -80,7 +72,6 @@ public class DisruptorDemoService {
         this.userPool.close();
         this.balancePool.close();
         this.positionPool.close();
-        this.publisherExecutor.shutdownNow();
     }
 
     public int runDemo(int events) {
@@ -89,7 +80,7 @@ public class DisruptorDemoService {
         }
 
         int totalEvents = events * 3;
-        publisherExecutor.submit(() -> publishEvents(events));
+        publishEvents(totalEvents);
         return totalEvents;
     }
 

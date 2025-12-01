@@ -40,6 +40,7 @@ public class BenchmarkController {
         Map<String, Object> payload = new HashMap<>();
         payload.put("requestedEvents", events);
         payload.put("publishedEvents", published);
+        LOGGER.info("Handled /bench/disruptor in {} microseconds", published);
         return payload;
     }
 }
