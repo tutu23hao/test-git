@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,11 +20,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DisruptorDemoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DisruptorDemoService.class);
-    private static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = 8192;
 
     private final GenericObjectPool<User> userPool;
-    private final Disruptor<UserEvent> disruptor;
-    private final UserEventProducer producer;
+    private final GenericObjectPool<Balance> balancePool;
+    private final GenericObjectPool<Position> positionPool;
+    private final Disruptor<PooledEvent> disruptor;
+    private final UserEventProducer userEventProducer;
+    private final BalanceEventProducer balanceEventProducer;
+    private final PositionEventProducer positionEventProducer;
+    private final ExecutorService publisherExecutor;
 
     public DisruptorDemoService() {
         GenericObjectPoolConfig<User> config = new GenericObjectPoolConfig<>();
@@ -31,6 +38,18 @@ public class DisruptorDemoService {
         config.setMaxIdle(BUFFER_SIZE / 2);
         this.userPool = new GenericObjectPool<>(new UserPooledObjectFactory(), config);
 
+        GenericObjectPoolConfig<Balance> balanceConfig = new GenericObjectPoolConfig<>();
+        balanceConfig.setMaxTotal(BUFFER_SIZE);
+        balanceConfig.setMinIdle(8);
+        balanceConfig.setMaxIdle(BUFFER_SIZE / 2);
+        this.balancePool = new GenericObjectPool<>(new BalancePooledObjectFactory(), balanceConfig);
+
+        GenericObjectPoolConfig<Position> positionConfig = new GenericObjectPoolConfig<>();
+        positionConfig.setMaxTotal(BUFFER_SIZE);
+        positionConfig.setMinIdle(8);
+        positionConfig.setMaxIdle(BUFFER_SIZE / 2);
+        this.positionPool = new GenericObjectPool<>(new PositionPooledObjectFactory(), positionConfig);
+
         AtomicInteger threadIndex = new AtomicInteger();
         ThreadFactory threadFactory = r -> {
             Thread t = new Thread(r, "disruptor-demo-" + threadIndex.incrementAndGet());
@@ -38,16 +57,30 @@ public class DisruptorDemoService {
             return t;
         };
 
-        this.disruptor = new Disruptor<>(new UserEventFactory(), BUFFER_SIZE, threadFactory);
-        this.disruptor.handleEventsWith(new UserEventHandler(userPool));
+        this.disruptor = new Disruptor<>(new PooledEventFactory(), BUFFER_SIZE, threadFactory);
+        this.disruptor.handleEventsWith(
+                new LoggingEventHandler<>(userPool, User.class),
+                new LoggingEventHandler<>(balancePool, Balance.class),
+                new LoggingEventHandler<>(positionPool, Position.class)
+        );
         this.disruptor.start();
-        this.producer = new UserEventProducer(this.disruptor.getRingBuffer(), this.userPool);
+        this.userEventProducer = new UserEventProducer(this.disruptor.getRingBuffer(), this.userPool);
+        this.balanceEventProducer = new BalanceEventProducer(this.disruptor.getRingBuffer(), this.balancePool);
+        this.positionEventProducer = new PositionEventProducer(this.disruptor.getRingBuffer(), this.positionPool);
+        this.publisherExecutor = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "disruptor-publisher");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     @PreDestroy
     public void shutdown() {
         this.disruptor.shutdown();
         this.userPool.close();
+        this.balancePool.close();
+        this.positionPool.close();
+        this.publisherExecutor.shutdownNow();
     }
 
     public int runDemo(int events) {
@@ -55,11 +88,17 @@ public class DisruptorDemoService {
             return 0;
         }
 
-        for (int i = 0; i < events; i++) {
-            producer.publishEvent();
-        }
+        int totalEvents = events * 3;
+        publisherExecutor.submit(() -> publishEvents(events));
+        return totalEvents;
+    }
 
-        LOGGER.info("Disruptor demo completed, published {} events", events);
-        return events;
+    private void publishEvents(int events) {
+        for (int i = 0; i < events; i++) {
+            userEventProducer.publishEvent();
+            balanceEventProducer.publishEvent();
+            positionEventProducer.publishEvent();
+        }
+        LOGGER.info("Disruptor demo completed, published {} events", events * 3);
     }
 }

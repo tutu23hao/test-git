@@ -5,7 +5,7 @@ import java.time.Instant;
 /**
  * Simple User value object reused through an object pool.
  */
-public class User {
+public class User implements PooledPayload {
 
     private long id;
     private String name;
@@ -35,10 +35,16 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    @Override
     public void reset() {
         this.id = 0;
         this.name = null;
         this.createdAt = null;
+    }
+
+    @Override
+    public String describe() {
+        return toString();
     }
 
     @Override
