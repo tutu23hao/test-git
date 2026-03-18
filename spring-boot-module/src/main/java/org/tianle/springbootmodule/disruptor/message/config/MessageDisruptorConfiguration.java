@@ -1,7 +1,9 @@
 package org.tianle.springbootmodule.disruptor.message.config;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +29,9 @@ public class MessageDisruptorConfiguration {
         Disruptor<MediaMessageEvent> disruptor = new Disruptor<>(
                 MediaMessageEvent::new,
                 BUFFER_SIZE,
-                messageDisruptorThreadFactory());
+                messageDisruptorThreadFactory(),
+                ProducerType.SINGLE,
+                new BlockingWaitStrategy());
 
         LOGGER.info("Registering handlers: adMessageEventHandler and newsMessageEventHandler");
         disruptor.handleEventsWith(adMessageEventHandler, newsMessageEventHandler);

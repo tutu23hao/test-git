@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 import org.tianle.springbootmodule.disruptor.message.model.MediaMessageEvent;
 import org.tianle.springbootmodule.disruptor.message.producer.MediaMessageProducer;
 
+import javax.annotation.PreDestroy;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class MessageDisruptorService {
 
@@ -16,11 +21,17 @@ public class MessageDisruptorService {
     private final MediaMessageProducer mediaMessageProducer;
     @SuppressWarnings("unused")
     private final Disruptor<MediaMessageEvent> messageDisruptor;
+    private final ExecutorService singlePublisherExecutor;
 
     public MessageDisruptorService(MediaMessageProducer mediaMessageProducer,
                                    @Qualifier("messageDisruptor") Disruptor<MediaMessageEvent> messageDisruptor) {
         this.mediaMessageProducer = mediaMessageProducer;
         this.messageDisruptor = messageDisruptor;
+        this.singlePublisherExecutor = Executors.newSingleThreadExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "message-disruptor-publisher");
+            thread.setDaemon(true);
+            return thread;
+        });
     }
 
     public int runDemo(int events) {
@@ -29,10 +40,8 @@ public class MessageDisruptorService {
             return 0;
         }
 
-        LOGGER.info("Start message disruptor publishing, loops={}, messageTypes=[ad,news]", events);
-        Thread publisher = new Thread(() -> publishMessages(events), "message-disruptor-publisher");
-        publisher.setDaemon(true);
-        publisher.start();
+        LOGGER.info("Submit message publishing task to single producer, loops={}, messageTypes=[ad,news]", events);
+        singlePublisherExecutor.submit(() -> publishMessages(events));
         return events * 2;
     }
 
@@ -42,5 +51,20 @@ public class MessageDisruptorService {
             mediaMessageProducer.publishNewsMessage();
         }
         LOGGER.info("Message disruptor publishing completed, published {} events", events * 2);
+    }
+
+    @PreDestroy
+    public void shutdownPublisherExecutor() {
+        singlePublisherExecutor.shutdown();
+        try {
+            if (!singlePublisherExecutor.awaitTermination(3, TimeUnit.SECONDS)) {
+                LOGGER.warn("Single producer executor did not terminate in time, forcing shutdown");
+                singlePublisherExecutor.shutdownNow();
+            }
+        } catch (InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+            LOGGER.warn("Interrupted while waiting single producer executor to stop");
+            singlePublisherExecutor.shutdownNow();
+        }
     }
 }
