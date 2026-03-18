@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.tianle.springbootmodule.disruptor.message.core.MediaMessageEventFactory;
-import org.tianle.springbootmodule.disruptor.message.core.MediaMessageEventHandler;
+import org.tianle.springbootmodule.disruptor.message.core.AdMessageEventHandler;
+import org.tianle.springbootmodule.disruptor.message.core.NewsMessageEventHandler;
 import org.tianle.springbootmodule.disruptor.message.model.MediaMessageEvent;
 
 import java.util.concurrent.ThreadFactory;
@@ -21,15 +21,16 @@ public class MessageDisruptorConfiguration {
     private static final int BUFFER_SIZE = 4096;
 
     @Bean(name = "messageDisruptor", destroyMethod = "shutdown")
-    public Disruptor<MediaMessageEvent> messageDisruptor(MediaMessageEventHandler mediaMessageEventHandler) {
+    public Disruptor<MediaMessageEvent> messageDisruptor(AdMessageEventHandler adMessageEventHandler,
+                                                         NewsMessageEventHandler newsMessageEventHandler) {
         LOGGER.info("Creating message disruptor, bufferSize={}, messageTypes=[AD, NEWS]", BUFFER_SIZE);
         Disruptor<MediaMessageEvent> disruptor = new Disruptor<>(
-                new MediaMessageEventFactory(),
+                MediaMessageEvent::new,
                 BUFFER_SIZE,
                 messageDisruptorThreadFactory());
 
-        LOGGER.info("Registering message disruptor event handler");
-        disruptor.handleEventsWith(mediaMessageEventHandler);
+        LOGGER.info("Registering handlers: adMessageEventHandler and newsMessageEventHandler");
+        disruptor.handleEventsWith(adMessageEventHandler, newsMessageEventHandler);
         disruptor.start();
         LOGGER.info("Message disruptor started");
         return disruptor;
